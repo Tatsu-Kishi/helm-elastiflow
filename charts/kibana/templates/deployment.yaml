@@ -131,6 +131,8 @@ spec:
         - name: "{{ $key }}"
           value: "{{ $value }}"
         {{- end }}
+        - name: "ELASTICSEARCH_URL"
+          value: "http://{{ .Release.Name }}-elasticsearch-client.{{ .Release.Namespace }}.svc.cluster.local:9200"
 {{- if (not .Values.authProxyEnabled) }}
         ports:
         - containerPort: {{ .Values.service.internalPort }}

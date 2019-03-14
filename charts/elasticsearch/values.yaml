@@ -1,7 +1,7 @@
 # Default values for elasticsearch.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-appVersion: "6.6.0"
+appVersion: "6.6.1"
 
 ## Define serviceAccount names for components. Defaults to component's fully qualified name.
 ##
@@ -33,7 +33,7 @@ podSecurityPolicy:
 
 image:
   repository: "docker.elastic.co/elasticsearch/elasticsearch-oss"
-  tag: "6.6.0"
+  tag: "6.6.1"
   pullPolicy: "IfNotPresent"
   # If specified, use these secrets to access the image
   # pullSecrets:
@@ -65,14 +65,16 @@ cluster:
 
 client:
   name: client
-  replicas: 2
+  replicas: 4
   serviceType: ClusterIP
+  nodePort: {}
   loadBalancerIP: {}
   loadBalancerSourceRanges: {}
 ## (dict) If specified, apply these annotations to the client service
 #  serviceAnnotations:
 #    example: client-svc-foo
-  heapSize: "512m"
+  heapSize: "1024m"
+  #### java options seem to get ignored
   # additionalJavaOpts: "-XX:MaxRAM=512m"
   antiAffinity: "soft"
   nodeAffinity: {}
@@ -86,12 +88,12 @@ client:
     #   cpu: "25m"
     #   memory: "128Mi"
   resources:
-    limits:
-      cpu: "1"
-      # memory: "1024Mi"
-    requests:
-      cpu: "25m"
-      memory: "512Mi"
+#    limits:
+#      cpu: "1"
+#      memory: "1536Mi"
+#    requests:
+#      cpu: "250m"
+#      memory: "1024Mi"
   priorityClassName: ""
   ## (dict) If specified, apply these annotations to each client Pod
   # podAnnotations:
@@ -117,7 +119,8 @@ master:
   name: master
   exposeHttp: false
   replicas: 3
-  heapSize: "512m"
+  heapSize: "1024m"
+  #### java options seem to get ignored
   # additionalJavaOpts: "-XX:MaxRAM=512m"
   persistence:
     enabled: true
@@ -142,12 +145,12 @@ master:
     #   cpu: "25m"
     #   memory: "128Mi"
   resources:
-    limits:
-      cpu: "1"
-      # memory: "1024Mi"
-    requests:
-      cpu: "25m"
-      memory: "512Mi"
+#    limits:
+#      cpu: "1"
+#      memory: "1536Mi"
+#    requests:
+#      cpu: "250m"
+#      memory: "1024Mi"
   priorityClassName: ""
   ## (dict) If specified, apply these annotations to each master Pod
   # podAnnotations:
@@ -162,14 +165,15 @@ master:
 data:
   name: data
   exposeHttp: false
-  replicas: 2
-  heapSize: "1536m"
+  replicas: 4
+  heapSize: "2048m"
+  #### java options seem to get ignored
   # additionalJavaOpts: "-XX:MaxRAM=1536m"
   persistence:
     enabled: true
     accessMode: ReadWriteOnce
     name: data
-    size: "30Gi"
+    size: "1Ti"
     # storageClass: "ssd"
   readinessProbe:
     httpGet:
@@ -189,12 +193,12 @@ data:
     #   cpu: "25m"
     #   memory: "128Mi"
   resources:
-    limits:
-      cpu: "1"
-      # memory: "2048Mi"
-    requests:
-      cpu: "25m"
-      memory: "1536Mi"
+#    limits:
+#      cpu: "2"
+#      memory: "4096Mi"
+#    requests:
+#      cpu: "1"
+#      memory: "2048Mi"
   priorityClassName: ""
   ## (dict) If specified, apply these annotations to each data Pod
   # podAnnotations:
@@ -210,4 +214,4 @@ data:
       enabled: true
 
 ## Additional init containers
-extraInitContainers: |
+extraInitContainers:

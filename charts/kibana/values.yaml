@@ -1,6 +1,6 @@
 image:
   repository: "docker.elastic.co/kibana/kibana-oss"
-  tag: "6.6.0"
+  tag: "6.6.1"
   pullPolicy: "IfNotPresent"
 
 commandline:
@@ -21,7 +21,7 @@ files:
     ## Default Kibana configuration from kibana-docker.
     server.name: kibana
     server.host: "0"
-    elasticsearch.url: http://elasticsearch:9200
+    #elasticsearch.url: http://elasticsearch:9200
 
     ## Custom config properties below
     ## Ref: https://www.elastic.co/guide/en/kibana/current/settings.html
@@ -33,10 +33,10 @@ deployment:
   annotations: {}
 
 service:
-  type: ClusterIP
+  type: NodePort
   # clusterIP: None
   # portName: kibana-svc
-  externalPort: 443
+  externalPort: 80
   internalPort: 5601
   # authProxyPort: 5602 To be used with authProxyEnabled and a proxy extraContainer
   ## External IP addresses of service
@@ -48,6 +48,7 @@ service:
   ## LoadBalancer IP if service.type is LoadBalancer
   ## Default: nil
   ##
+  # nodePort: 31080
   # loadBalancerIP: 10.2.2.2
   annotations: {}
     # Annotation example: setup ssl with aws cert when service.type is LoadBalancer
@@ -80,7 +81,7 @@ serviceAccount:
   name:
 
 livenessProbe:
-  enabled: false
+  enabled: true
   initialDelaySeconds: 30
   timeoutSeconds: 10
 
@@ -112,13 +113,13 @@ extraVolumeMounts: []
 
 extraVolumes: []
 
-resources: {}
-  # limits:
-  #   cpu: 100m
-  #   memory: 300Mi
-  # requests:
-  #   cpu: 100m
-  #   memory: 300Mi
+resources:
+  limits:
+    cpu: 1000m
+    memory: 512Mi
+  requests:
+    cpu: 100m
+    memory: 300Mi
 
 priorityClassName: ""
 
@@ -147,7 +148,8 @@ dashboardImport:
     enabled: false
     username: myuser
     password: mypass
-  dashboards: {}
+  dashboards:
+    elastiflow: "https://raw.githubusercontent.com/robcowart/elastiflow/master/kibana/elastiflow.kibana.6.6.x.json"
     # k8s: https://raw.githubusercontent.com/monotek/kibana-dashboards/master/k8s-fluentd-elasticsearch.json
 
 # List of plugins to install using initContainer

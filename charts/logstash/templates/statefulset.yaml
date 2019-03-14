@@ -25,10 +25,8 @@ spec:
         {{ $key }}: {{ $value | quote }}
         {{- end }}
       {{- end }}
-      annotations:
-        checksum/patterns: {{ include (print $.Template.BasePath "/patterns-config.yaml") . | sha256sum }}
-        checksum/pipeline: {{ include (print $.Template.BasePath "/pipeline-config.yaml") . | sha256sum }}
       {{- if .Values.podAnnotations }}
+      annotations:
         ## Custom pod annotations
         {{- range $key, $value := .Values.podAnnotations }}
         {{ $key }}: {{ $value | quote }}
@@ -46,20 +44,15 @@ spec:
 {{ toYaml .Values.image.pullSecrets | indent 8 }}
       {{- end }}
       containers:
-
         ## logstash
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: monitor
-              containerPort: {{ .Values.exporter.logstash.target.port }}
-              protocol: TCP
-{{ toYaml .Values.ports | indent 12 }}
-          livenessProbe:
-{{ toYaml .Values.livenessProbe | indent 12 }}
-          readinessProbe:
-{{ toYaml .Values.readinessProbe | indent 12 }}
+          - name: monitor
+            containerPort: {{ .Values.exporter.logstash.target.port }}
+            protocol: TCP
+{{ toYaml .Values.ports | indent 10 }}
           env:
             ## Logstash monitoring API host and port env vars
             - name: HTTP_HOST
@@ -68,9 +61,11 @@ spec:
               value: {{ .Values.exporter.logstash.target.port | quote }}
             ## Elasticsearch output
             - name: ELASTICSEARCH_HOST
-              value: {{ .Values.elasticsearch.host | quote }}
+              value: {{ .Release.Name }}-elasticsearch-client.{{ .Release.Namespace }}.svc.cluster.local
             - name: ELASTICSEARCH_PORT
               value: {{ .Values.elasticsearch.port | quote }}
+            - name: ELASTIFLOW_ES_HOST
+              value: {{ .Release.Name }}-elasticsearch-client.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.elasticsearch.port }}
             ## Additional env vars
           {{- range $key, $value := .Values.config }}
             - name: {{ $key | upper | replace "." "_" }}
@@ -98,10 +93,10 @@ spec:
             - name: ls-exporter
               containerPort: {{ .Values.exporter.logstash.port }}
               protocol: TCP
-          livenessProbe:
-{{ toYaml .Values.exporter.logstash.livenessProbe | indent 12 }}
-          readinessProbe:
-{{ toYaml .Values.exporter.logstash.readinessProbe | indent 12 }}
+              #livenessProbe:
+              #{{ toYaml .Values.exporter.logstash.livenessProbe | indent 12 }}
+              #          readinessProbe:
+              #{{ toYaml .Values.exporter.logstash.readinessProbe | indent 12 }}
           {{- with .Values.exporter.logstash.config }}
           env:
             {{- range $key, $value := . }}
@@ -127,12 +122,12 @@ spec:
     {{- end }}
       terminationGracePeriodSeconds: {{ .Values.terminationGracePeriodSeconds }}
       volumes:
-        - name: patterns
+        - name: logstash-jvm-options
           configMap:
-            name: {{ template "logstash.fullname" . }}-patterns
-        - name: pipeline
-          configMap:
-            name: {{ template "logstash.fullname" . }}-pipeline
+            name: {{ template "logstash.fullname" . }}-jvm-options
+            items:
+            - key: "jvm.options"
+              path: "jvm.options"
     {{- with .Values.volumes }}
 {{ toYaml . | indent 8 }}
     {{- end }}

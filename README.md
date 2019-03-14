@@ -1,7 +1,7 @@
 # Elastic-stack Helm Chart
 
-This chart installs an elasticsearch cluster with kibana and logstash by default.
-You can optionally disable logstash and install Fluentd if you prefer. It also optionally installs filebeat, nginx-ldapauth-proxy and elasticsearch-curator.
+This chart installs an elasticsearch 6.6.1 cluster with elastiflow 3.4.1 on logstash 6.1.3 and kibana by default.
+It also optionally installs filebeat, nginx-ldapauth-proxy and elasticsearch-curator.
 
 ## Prerequisites Details
 
@@ -17,10 +17,10 @@ This chart will do the following:
 
 ## Installing the Chart
 
-To install the chart with the release name `my-release`:
+To install the chart with the release name `elastiflow`:
 
 ```bash
-$ helm install --name my-release stable/elastic-stack
+$ helm install --name elastiflow path/to/elastic-stack-helm
 ```
 
 ## Deleting the Charts
@@ -28,13 +28,13 @@ $ helm install --name my-release stable/elastic-stack
 Delete the Helm deployment as normal
 
 ```
-$ helm delete my-release
+$ helm delete --purge elastiflow
 ```
 
 Deletion of the StatefulSet doesn't cascade to deleting associated PVCs. To delete them:
 
 ```
-$ kubectl delete pvc -l release=my-release,component=data
+$ kubectl delete pvc -l release=elastiflow,component=data
 ```
 
 ## Configuration
