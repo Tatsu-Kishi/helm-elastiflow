@@ -10,4 +10,4 @@ Due to circumstances I am unable to test any changes, therefore cannot feasably 
 
 ### Chart
 
-See CHART_README.md for use information.
+See HELM_README.md for use information.
