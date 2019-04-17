@@ -3,8 +3,8 @@
 # Declare variables to be passed into your templates.
 
 cronjob:
-  # At 01:00 every day
-  schedule: "0 1 * * *"
+  # At 05:00 every day
+  schedule: "0 3 * * *"
   annotations: {}
   concurrencyPolicy: ""
   failedJobsHistoryLimit: ""
@@ -23,29 +23,65 @@ hooks:
   upgrade: false
 
 configMaps:
-  # Delete indices older than 7 days
   action_file_yml: |-
     ---
     actions:
       1:
-        action: delete_indices
-        description: "Clean up ES by deleting old indices"
+        action: index_settings
+        description: "Prepare shrinking by making old indices read-only"
         options:
           timeout_override:
           continue_if_exception: False
           disable_action: False
           ignore_empty_list: True
+          index_settings:
+            index:
+              blocks:
+                write: True
         filters:
         - filtertype: age
           source: name
           direction: older
           timestring: '%Y.%m.%d'
           unit: days
-          unit_count: 7
+          unit_count: 2
           field:
           stats_result:
           epoch:
           exclude: False
+      2:
+        action: shrink
+        description: "Shrink indices that are older than 3 days"
+        options:
+          disable_action: True
+          ignore_empty_list: True
+          shrink_node: DETERMINISTIC
+          node_filters:
+            permit_masters: False
+          number_of_shards: 3
+          number_of_replicas: 1
+          shrink_prefix:
+          shrink_suffix: '-shrink'
+          delete_after: True
+          wait_for_active_shards: 1
+          extra_settings:
+            settings:
+              index.codec: best_compression
+          wait_for_completion: True
+          wait_interval: 9
+          max_wait: -1
+        filters:
+        - filtertype: age
+          source: name
+          direction: older
+          timestring: '%Y.%m.%d'
+          unit: days
+          unit_count: 3
+          field:
+          stats_result:
+          epoch:
+          exclude: False
+
   # Having config_yaml WILL override the other config
   config_yml: |-
     ---
@@ -54,7 +90,7 @@ configMaps:
         - CHANGEME.host
       port: 9200
       # url_prefix:
-      # use_ssl: True
+      use_ssl: False
       # certificate:
       # client_cert:
       # client_key:
@@ -62,11 +98,11 @@ configMaps:
       # http_auth:
       # timeout: 30
       # master_only: False
-    # logging:
-    #   loglevel: INFO
-    #   logfile:
-    #   logformat: default
-    #   blacklist: ['elasticsearch', 'urllib3']
+    logging:
+      loglevel: INFO
+      logfile:
+      logformat: default
+      blacklist: ['elasticsearch', 'urllib3']
 
 
 resources: {}
