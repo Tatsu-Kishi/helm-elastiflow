@@ -10,8 +10,8 @@ Due to circumstances I am unable to test any changes, therefore cannot feasably 
 
 ### Chart
 
-See HELM_README.md for use information.
+See HELM_README.md for use information. Original chart from here https://github.com/helm/charts/tree/master/stable/elastic-stack
 
 ### License
 
-See original comments and attributions in the files. Almost none of this work is mine and I lay no claim to any of this.
+See original comments and attributions in the files and source repos. Almost none of this work is mine and I lay no claim to any of this.
