@@ -15,6 +15,8 @@ See HELM_README.md for use information. Original chart from here https://github.
 ### License
 
 Helm chart: Apache 2.0
+
 Elastiflow: [Robert Cowart public licence](http://www.koiossian.com/public/robert_cowart_public_license.txt)
+
 This chart does not contain code of Elastiflow, but references it and instructs to download the docker container published by Rober Cowart, which is subject to the Robert Cowart public licence.
 See original comments and attributions in the files and source repos. Almost none of this work is mine and I lay no claim to any of this.
